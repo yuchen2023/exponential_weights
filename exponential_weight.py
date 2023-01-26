@@ -210,7 +210,7 @@ for action_len in action_len_arr:
             # print(summed)
             # print(np.argmax(summed))
             # print("calculateEmpiricalEpsilonExact =",calculateEmpiricalEpsilonExact(bernoulli_matrix, bernoulli_weights, 0.5))
-            empirical_epsilon_exact_bernoulli+= calculateEmpiricalEpsilonExact(bernoulli_matrix, bernoulli_weights, 0.5)/100
+            # empirical_epsilon_exact_bernoulli+= calculateEmpiricalEpsilonExact(bernoulli_matrix, bernoulli_weights, 0.5)/100
 
             lucky_streak = generateLuckyStreak(round_len, action_len)
             weights = calculateWeights(lucky_streak)
@@ -236,11 +236,12 @@ for action_len in action_len_arr:
             print(f"\nEmpirical Epsilon with {trials} trials: {calculateEmpiricalEpsilonMonte(lucky_streak, trials, 1, consecutive=1)}")
             # emp_monte_carlo_result = calculateEmpiricalEpsilonMonte(lucky_streak, trials, 1, consecutive=1)[1]
             # print("emp_monte_carlo_result = ",emp_monte_carlo_result)
-        empirical_epsilon.append(empirical_epsilon_exact_bernoulli)
+        # empirical_epsilon.append(empirical_epsilon_exact_bernoulli)
+        empirical_epsilon.append(empirical_epsilon_exact_luckystreak)
     pyplot.plot(round_len_arr, empirical_epsilon, label=str(action_len) + "actions")
 
 print("empirical_epsilon\n",empirical_epsilon)
-pyplot.title("Empirical Epsilon over 100 trials")
+pyplot.title("Lucky Streak - Empirical Epsilon over 100 trials")
 pyplot.xlabel("Trial count")
 pyplot.ylabel("epsilon")
 pyplot.legend()
