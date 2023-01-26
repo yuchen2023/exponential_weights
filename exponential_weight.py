@@ -9,7 +9,7 @@ def calculateTheoreticalEpsilon(n, k):
     return np.sqrt(np.log(k)/n)
 
 def calculateEmpiricalEpsilonMonte(arr, trials, h, consecutive):
-    step = 0.0005
+    step = 0.1
     epsilons = np.arange(step, 0.2, step)
     best_epsilon = -1
     best_payoff = -1
@@ -39,7 +39,7 @@ def calculateEmpiricalEpsilonMonte(arr, trials, h, consecutive):
     return best_epsilon, best_payoff
 
 def calculateEmpiricalEpsilonExact(arr, weights, h):
-    epsilons = np.arange(0, 0.2, 0.005)
+    epsilons = np.arange(0, 0.2, 0.05)
     best_payoff = -1
     best_epsilon = -1
     for epsilon in epsilons:
