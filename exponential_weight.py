@@ -9,7 +9,7 @@ def calculateTheoreticalEpsilon(n, k):
     return np.sqrt(np.log(k)/n)
 
 def calculateEmpiricalEpsilonMonte(arr, trials, h, consecutive):
-    step = 0.01
+    step = 0.0005
     epsilons = np.arange(step, 0.2, step)
     best_epsilon = -1
     best_payoff = -1
@@ -186,51 +186,53 @@ action_len_arr = [5, 10, 100, 500] #k
 for action_len in action_len_arr:
     empirical_epsilon =[]
     for round_len in round_len_arr:
+        empirical_epsilon_exact = 0
+        for i in range(100):
+            bernoulli_matrix = np.random.rand(round_len, action_len)
+            bernoulli_matrix = np.divide(bernoulli_matrix, 2)
 
-        bernoulli_matrix = np.random.rand(round_len, action_len)
-        bernoulli_matrix = np.divide(bernoulli_matrix, 2)
-
-        print("round = ",round_len, "\taction = ", action_len)
-        # print(bernoulli_matrix)
+            print("round = ",round_len, "\taction = ", action_len)
+            # print(bernoulli_matrix)
 
 
-        bernoulli_weights = calculateWeights(bernoulli_matrix)
-        print("\ntheoretical epsilon = ",calculateTheoreticalEpsilon(round_len, action_len))
-        # pyplot.plot(range(1, 50),calculateTheoreticalEpsilon(round_len, action_len))
+            bernoulli_weights = calculateWeights(bernoulli_matrix)
+            print("\ntheoretical epsilon = ",calculateTheoreticalEpsilon(round_len, action_len))
+            # pyplot.plot(range(1, 50),calculateTheoreticalEpsilon(round_len, action_len))
 
-        summed = np.sum(bernoulli_matrix, axis=0)
-        # print(summed)
-        # print(np.argmax(summed))
-        print("calculateEmpiricalEpsilonExact =",calculateEmpiricalEpsilonExact(bernoulli_matrix, bernoulli_weights, 0.5))
-        empirical_epsilon.append(calculateEmpiricalEpsilonExact(bernoulli_matrix, bernoulli_weights, 0.5))
+            summed = np.sum(bernoulli_matrix, axis=0)
+            # print(summed)
+            # print(np.argmax(summed))
+            # print("calculateEmpiricalEpsilonExact =",calculateEmpiricalEpsilonExact(bernoulli_matrix, bernoulli_weights, 0.5))
+            empirical_epsilon_exact+= calculateEmpiricalEpsilonExact(bernoulli_matrix, bernoulli_weights, 0.5)/100
 
-        lucky_streak = generateLuckyStreak(round_len, action_len)
-        weights = calculateWeights(lucky_streak)
-        # print("lucky_streak\n",lucky_streak)
-        # print("weights = ",weights)
-        print("calculateExpectedPayoff \n",calculateExpectedPayoff(lucky_streak, weights, 1, 1))
-        trials = 100
-        print(optimal(lucky_streak))
-        print(f"Theoretical Epsilon: {calculateTheoreticalEpsilon(round_len, action_len)}")
-        epsilons = np.arange(0.01, 0.2, 0.005)
-        best_epsilon = -1
-        best_payoff = -1
-
-        for epsilon in epsilons:
+            lucky_streak = generateLuckyStreak(round_len, action_len)
             weights = calculateWeights(lucky_streak)
-            payoff = calculateExpectedPayoff(lucky_streak, weights, epsilon, 1)
-            if payoff > best_payoff:
-                best_payoff = payoff
-                best_epsilon = epsilon
+            # print("lucky_streak\n",lucky_streak)
+            # print("weights = ",weights)
+            print("calculateExpectedPayoff \n",calculateExpectedPayoff(lucky_streak, weights, 1, 1))
+            trials = 100
+            print(optimal(lucky_streak))
+            print(f"Theoretical Epsilon: {calculateTheoreticalEpsilon(round_len, action_len)}")
+            epsilons = np.arange(0.01, 0.2, 0.005)
+            best_epsilon = -1
+            best_payoff = -1
 
-        print("\n best epsilon and best payoff =",best_epsilon, best_payoff)
-        print(f"\nEmpirical Epsilon with {trials} trials: {calculateEmpiricalEpsilonMonte(lucky_streak, trials, 1, consecutive=1)}")
-        # emp_monte_carlo_result = calculateEmpiricalEpsilonMonte(lucky_streak, trials, 1, consecutive=1)[1]
-        # print("emp_monte_carlo_result = ",emp_monte_carlo_result)
-    pyplot.plot(round_len_arr, empirical_epsilon)
+            for epsilon in epsilons:
+                weights = calculateWeights(lucky_streak)
+                payoff = calculateExpectedPayoff(lucky_streak, weights, epsilon, 1)
+                if payoff > best_payoff:
+                    best_payoff = payoff
+                    best_epsilon = epsilon
+
+            print("\n best epsilon and best payoff =",best_epsilon, best_payoff)
+            print(f"\nEmpirical Epsilon with {trials} trials: {calculateEmpiricalEpsilonMonte(lucky_streak, trials, 1, consecutive=1)}")
+            # emp_monte_carlo_result = calculateEmpiricalEpsilonMonte(lucky_streak, trials, 1, consecutive=1)[1]
+            # print("emp_monte_carlo_result = ",emp_monte_carlo_result)
+        empirical_epsilon.append(empirical_epsilon_exact)
+    pyplot.plot(round_len_arr, empirical_epsilon, label=str(action_len) + "actions")
 
 print("empirical_epsilon\n",empirical_epsilon)
-pyplot.title("Empirical Epsilon over 100 trials ( 5 actions )")
+pyplot.title("Empirical Epsilon over 100 trials")
 pyplot.xlabel("Trials")
 pyplot.ylabel("epsilon")
 pyplot.legend()
