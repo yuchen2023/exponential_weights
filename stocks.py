@@ -3,36 +3,27 @@ import matplotlib.pyplot as pyplot
 import random
 import csv
 
-def calculateEmpiricalEpsilonMonte(arr, trials, h, consecutive):
-    step = 0.01
-    epsilons = np.arange(step, 0.2, step)
-    best_epsilon = -1
+def calculateWeights(arr):
+    weights = [[0 for i in range(len(arr[0]))]]
+    weights_idx = 1
+    for i in range(len(arr)):  # number of monte carlo trials
+        payoffs = arr[i]
+        payoffs = np.add(payoffs, weights[weights_idx - 1])
+        weights.append(payoffs)
+        weights_idx += 1
+    return weights
+
+def calculateEmpiricalEpsilonExact(arr, weights, h):
+    epsilons = np.arange(0, 0.2, 0.01)
     best_payoff = -1
-    random_trials = []
-    for i in range(trials):
-        cur_trial = random.randint(0, len(arr) - 1)
-        end = cur_trial + consecutive
-        while cur_trial < end:
-            random_trials.append(arr[cur_trial])
-            cur_trial += 1
-
+    best_epsilon = -1
     for epsilon in epsilons:
-        weights = [[0 for i in range(len(arr[0]))]]
-        weights_idx = 1
-        for i in range(len(random_trials)): #number of monte carlo trials
-            payoffs = random_trials[i]
-            payoffs = np.add(payoffs, weights[weights_idx-1])
-            weights.append(payoffs)
-            weights_idx += 1
-
-        cur_payoff = calculateExpectedPayoff(random_trials, weights, epsilon, h)
-
-        if cur_payoff > best_payoff:
-            best_payoff = cur_payoff
+        payoff = calculateExpectedPayoff(arr, weights, epsilon, h)
+        if payoff > best_payoff:
+            best_payoff = payoff
             best_epsilon = epsilon
 
-    return best_epsilon, best_payoff
-
+    return best_epsilon
 
 def calculateExpectedPayoff(arr, weights, epsilon, h): #calculates by previously produced weights
     payoff = 0
@@ -66,13 +57,18 @@ with open('all_stocks_5yr.csv') as csv_file:
         data.append(row)
 
 data.pop(0)
+
+# reaarange data for 20 stocks
 new_data = []
+stock_name_arr = []
 row = []
-print(data[:10])
-for i in range(1260*20):
+for i in range(1258*20):
     row.append(data[i][7])
-    if(i%1260 == 0 and i!=0):
+    if(i%1258 == 0 and i!=0):
+        stock_name_arr.append(data[i][6])
         new_data.append(row)
         row = []
-print(new_data[:1])
-
+# print(stock_name_arr)
+new_data_weights = calculateWeights(new_data)
+# print(new_data_weights[0:1])
+print("calculateEmpiricalEpsilonExact = ",calculateEmpiricalEpsilonExact(new_data, new_data_weights, 1.117198))
